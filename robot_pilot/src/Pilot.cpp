@@ -45,7 +45,7 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
             //Send message
             std_msgs::String str;
             std::stringstream ss;
-            ss << "true";
+            ss << "1";
             str.data = ss.str();
             Pilot::commandCompletedPublisher.publish(str);
         }
