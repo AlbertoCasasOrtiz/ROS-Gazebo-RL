@@ -18,7 +18,7 @@ public:
     /// Parse a action in string representation.
     /// \param action String representation of a action.
     /// \return action represented as string.
-    static std::string parseAction(Action action);
+    static std::string toString(Action action);
 
     /// Get ith action.
     /// \param i Number of the action.

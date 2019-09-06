@@ -22,9 +22,11 @@ Pilot::Pilot(int argc, char **argv) {
 
     // Inidialize subscribers and publishers
     Pilot::cmdVelPublisher = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+    // Publish status to commander.
     Pilot::commandCompletedPublisher = nh.advertise<std_msgs::String>("/commander", 10);
     Pilot::odomSubscriber = nh.subscribe("/odom", 1, &Pilot::odomCallback, this);
-    Pilot::commandSubscriber = nh.subscribe("/commander", 1, &Pilot::commanderCallback, this);
+    //Subscribe of pilot for getting actions
+    Pilot::commandSubscriber = nh.subscribe("/pilot", 1, &Pilot::commanderCallback, this);
 
     // Spin for subscribers.
     ros::spin();
@@ -32,10 +34,21 @@ Pilot::Pilot(int argc, char **argv) {
 
 void Pilot::commanderCallback(const std_msgs::String::ConstPtr &msg) {
     ROS_INFO("Command received: [%s]", msg->data.c_str());
-    Pilot::commands.push(Pilot::parseCommand(msg->data));
+    Pilot::parseAction(msg->data.c_str());
 }
 
 void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
+    if(Pilot::firstTime){
+        ROS_INFO("SENT");
+        //Send message to receive first action
+        std_msgs::String str;
+        std::stringstream ss;
+        ss << "2";
+        str.data = ss.str();
+        Pilot::commandCompletedPublisher.publish(str);
+        Pilot::firstTime = false;
+    }
+
     // If there are no commands, stop.
     if(Pilot::commands.empty()) {
         Pilot::stop();
@@ -45,7 +58,11 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
             //Send message
             std_msgs::String str;
             std::stringstream ss;
-            ss << "1";
+            if(!possibleAction) {
+                ss << "0";
+            } else{
+                ss << "2";
+            }
             str.data = ss.str();
             Pilot::commandCompletedPublisher.publish(str);
         }
@@ -105,7 +122,6 @@ void Pilot::turnLeft(const nav_msgs::Odometry::ConstPtr &msg, float angularSpeed
         ROS_INFO("LEFT");
         Pilot::updateHeading(Pilot::Commands::LEFT);
         Pilot::flag_once = false;
-
 
         // Execution of command turn left.
         geometry_msgs::Twist cmd;
@@ -211,4 +227,68 @@ Pilot::Commands Pilot::parseCommand(const std::string& command) {
         return Pilot::Commands ::STOP;
     }
 
+}
+
+void Pilot::parseAction(const std::string& action) {
+    Pilot::possibleAction = false;
+    if(action == "UP") {
+        if (Pilot::heading == Pilot::Dir::UP) {
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+        if (Pilot::heading == Pilot::Dir::LEFT) {
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+        if(Pilot::heading == Pilot::Dir::RIGHT) {
+            Pilot::commands.push(Pilot::Commands::LEFT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+
+    } else if (action == "LEFT"){
+        if(Pilot::heading == Pilot::Dir::UP){
+            Pilot::commands.push(Pilot::Commands::LEFT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+        if(Pilot::heading == Pilot::Dir::LEFT){
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+        if(Pilot::heading == Pilot::Dir::DOWN) {
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+
+    } else if (action == "RIGHT"){
+        if(Pilot::heading == Pilot::Dir::UP){
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        } else if(Pilot::heading == Pilot::Dir::RIGHT){
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        } else if(Pilot::heading == Pilot::Dir::DOWN){
+            Pilot::commands.push(Pilot::Commands::LEFT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+    } else if (action == "DOWN"){
+        if(Pilot::heading == Pilot::Dir::RIGHT){
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+        if(Pilot::heading == Pilot::Dir::LEFT){
+            Pilot::commands.push(Pilot::Commands::LEFT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        } else if(Pilot::heading == Pilot::Dir::DOWN){
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+    }
 }

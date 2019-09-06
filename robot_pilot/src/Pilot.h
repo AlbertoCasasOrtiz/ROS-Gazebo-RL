@@ -61,6 +61,10 @@ private:
     /// \param command String representation of a command.
     /// \return Command represented.
     static Commands parseCommand(const std::string& command);
+    /// Parse and action and convert it into a command.
+    /// \param action Action to be parsed.
+    /// \return Correspondent command.
+    void parseAction(const std::string& action);
 
     //Publishers and Subscribers
     /// Subscribe to topic that send commands to the robot.
@@ -88,6 +92,11 @@ private:
     /// Length of stepts taken by the robot.
     float stepDistance;
 
+    /// True if the action is possible.
+    bool possibleAction;
+
+    /// Send first command.
+    bool firstTime;
 };
 
 #endif //SRC_PILOT_H

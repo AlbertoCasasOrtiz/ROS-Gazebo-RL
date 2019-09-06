@@ -12,7 +12,7 @@
 #include "../utils/RandomGenerator.h"
 #include <limits>
 
-std::string Actions::parseAction(Actions::Action action) {
+std::string Actions::toString(Actions::Action action) {
     switch(action){
         case Actions::Action::UP:
             return "UP";

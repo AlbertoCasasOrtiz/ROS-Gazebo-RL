@@ -6,17 +6,15 @@
 #define SRC_QLEARNING_H
 
 
+#include <ros/ros.h>
 #include "bot/Bot.h"
 #include "bot/Table.h"
+#include <std_msgs/String.h>
 
 class QLearning {
 public:
     /// Constructor of QLearning.
     QLearning(int argc, char **argv);
-
-    //TODO
-    /// \param other
-    QLearning(QLearning & other);
 
     /// Get reward when goal achieved.
     /// \return Reward.
@@ -28,6 +26,11 @@ public:
     /// Ending condition of an episode.
     bool endCondition();
 private:
+    // Callback functions
+    /// Receives and processes status from the pilot topic.
+    /// \param msgs Message containing the status.
+    void commanderCallback(const std_msgs::String::ConstPtr &msg);
+
     /// Max number of episodes of the algorithm-
     int numEpisodes = 0;
     /// Algorithm learning rate.
@@ -53,6 +56,11 @@ private:
     /// Indicates if the robot has finished it movement.
     bool flagRobotEnded = false;
 
+    /// Subscribe to pilot to receive robot status.
+    ros::Subscriber commanderSubscriber;
+
+    /// Publish commands to pilot
+    ros::Publisher commandPublisher;
 };
 
 
