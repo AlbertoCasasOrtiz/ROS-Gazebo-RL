@@ -35,11 +35,11 @@ void QLearning::execute() {
         QLearning::bot.currentState = QLearning::initialState;
 
         while(!endCondition()) {
-            // TODO Tomar acción y guardar en sP el nuevo estado.
-            // sP = Resultado de tomar acción.
-            // TODO Esperar a que acción sea tomada.
+            sP = Actions::takeAction(QLearning::bot, a);
+            // TODO Esperar a que acción sea tomada por robot real.
 
-            float reward = QLearning::getReward();
+            // Observe reward of sP
+            float reward = QLearning::getReward(sP);
 
             // Get action from eGreedy.
             Actions::Action aP = Actions::eGreedy(QLearning::bot, QLearning::epsilon);
@@ -73,8 +73,8 @@ void QLearning::execute() {
     }
 }
 
-float QLearning::getReward() {
-    if(QLearning::bot.currentState == QLearning::goalState){
+float QLearning::getReward(State state) {
+    if(state == state){
         return 100;
     } else return -0.1;
 }

@@ -42,6 +42,11 @@ public:
     /// \return Selected action by the metod.
     static Actions::Action bestAction(Bot bot);
 
+    /// Take and action and return state.
+    /// \param bot Bot that takes the action.
+    /// \param action Action to take.
+    /// \return State result of take an action.
+    static State takeAction(const Bot& bot, Action action);
 };
 
 

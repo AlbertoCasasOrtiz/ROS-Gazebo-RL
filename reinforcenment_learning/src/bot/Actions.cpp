@@ -89,3 +89,22 @@ Actions::Action Actions::bestAction(Bot bot) {
     }
     return bestAction;
 }
+
+State Actions::takeAction(const Bot& bot, Actions::Action action) {
+    State state = State(bot.currentState.p.x, bot.currentState.p.y);
+    switch(action){
+        case Actions::Action::UP:
+            state.p.x++;
+            break;
+        case Actions::Action::LEFT:
+            state.p.y--;
+            break;
+        case Actions::Action::RIGHT:
+            state.p.y++;
+            break;
+        case Actions::Action::DOWN:
+            state.p.x--;
+            break;
+    }
+    return state;
+}

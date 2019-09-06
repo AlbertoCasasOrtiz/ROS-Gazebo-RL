@@ -16,7 +16,7 @@ public:
 
     /// Get reward when goal achieved.
     /// \return Reward.
-    float getReward();
+    float getReward(State state);
 
     /// Execution of the algorithm Q-Learning.
     void execute();
