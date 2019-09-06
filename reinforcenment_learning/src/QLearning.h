@@ -6,14 +6,13 @@
 #define SRC_QLEARNING_H
 
 
-#include "state/State.h"
 #include "bot/Bot.h"
-#include "bot/QTable.h"
+#include "bot/Table.h"
 
 class QLearning {
 public:
     /// Constructor of QLearning.
-    QLearning();
+    QLearning(int argc, char **argv);
 
     /// Get reward when goal achieved.
     /// \return Reward.
@@ -33,14 +32,16 @@ private:
     float epsilon;
     /// Algorithm propagation rate.
     float gamma;
+    // Influence of elegibility traces.
+    float lambda;
 
     /// Initial state of the robot.
-    State initialState;
+    State initialState = State(0, 0);;
     /// Goal state of the robot.
-    State goalState;
+    State goalState = State(0, 0);
 
     /// Inner representation of the robot.
-    Bot bot;
+    Bot bot = Bot(State(0, 0));
 
 };
 

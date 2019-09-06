@@ -6,7 +6,6 @@
 
 Bot::Bot(State currentState){
     Bot::currentState = currentState;
-    // TODO set in qTable sizes of arrays. Maybe change to map of points that stores arrays of actions? 
-    Bot::qTable.initializeTableQ();
-    Bot::qTable.initializeTableE();
+    Bot::tables.initializeTableQ(currentState);
+    Bot::tables.initializeTableE(currentState);
 }

@@ -10,7 +10,8 @@
 
 class Actions {
 public:
-
+    /// Number of actions.
+    const static int size = 4;
     /// Actions that the robot can execute.
     enum Action{UP, DOWN, LEFT, RIGHT};
 

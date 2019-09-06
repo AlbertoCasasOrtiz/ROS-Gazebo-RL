@@ -6,18 +6,19 @@
 #define SRC_BOT_H
 
 
-#include "QTable.h"
+#include "Table.h"
 #include "State.h"
 
 class Bot {
 public:
-    explicit Bot(State currentState);
-
+    /// Constructor of Bot.
+    /// \param currentState Current state of the bot.
+    Bot(State currentState);
 public:
     /// Current state of the robot.
-    State currentState;
+    State currentState = State(0, 0);
     /// QTable with learned values.
-    QTable qTable;
+    Table tables;
 };
 
 

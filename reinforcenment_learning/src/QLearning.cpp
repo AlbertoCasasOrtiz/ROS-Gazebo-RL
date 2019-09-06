@@ -5,25 +5,30 @@
 #include "QLearning.h"
 #include "bot/Actions.h"
 
-QLearning::QLearning() {
+QLearning::QLearning(int argc, char **argv) {
     // TODO Initialize values here.
     QLearning::numEpisodes = 100;
     QLearning::alpha = 0.7;
     QLearning::epsilon = 0.2;
     QLearning::gamma = 0.2;
+    QLearning::lambda = 0.2;
+
+    QLearning::initialState = State(0, 0);
+    QLearning::goalState = State(0, 0);
+    QLearning::bot = Bot(QLearning::initialState);
 
 }
 
 void QLearning::execute() {
-    State sP;
+    State sP = State(0, 0);
     float delta = 0.0;
 
     // Initialize table Q.;
-    QLearning::bot.qTable.initializeTableQ();
+    QLearning::bot.tables.initializeTableQ(QLearning::bot.currentState);
 
     for(int i = 0; i < QLearning::numEpisodes; i++){
         // Initialize table E.
-        QLearning::bot.qTable.initializeTableE();
+        QLearning::bot.tables.initializeTableE(QLearning::bot.currentState);
 
         // Initialize S and A.
         Actions::Action a = Actions::getAction(0);
@@ -34,8 +39,7 @@ void QLearning::execute() {
             // sP = Resultado de tomar acción.
             // TODO Esperar a que acción sea tomada.
 
-            //TODO Calculate reward.
-            float reward;
+            float reward = QLearning::getReward();
 
             // Get action from eGreedy.
             Actions::Action aP = Actions::eGreedy(QLearning::bot, QLearning::epsilon);
@@ -43,12 +47,26 @@ void QLearning::execute() {
             Actions::Action aS = Actions::bestAction(QLearning::bot);
 
             // Update delta.
-            delta = reward + QLearning::gamma * QLearning::bot.qTable.getValueQ(sP.x, sP.y, Actions::getPosition(aS)) - QLearning::bot.qTable.getValueQ(QLearning::bot.currentState.x, QLearning::bot.currentState.y, Actions::getPosition(a));
+            delta = reward + QLearning::gamma * QLearning::bot.tables.getValueQ(sP, Actions::getPosition(aS)) - QLearning::bot.tables.getValueQ(QLearning::bot.currentState, Actions::getPosition(a));
 
-            //Choose strategy of update traces.
-            QLearning::bot.qTable.updateValueE(QLearning::bot.currentState.x, QLearning::bot.currentState.y, Actions::getPosition(a), QLearning::bot.qTable.getValueE(QLearning::bot.currentState.x, QLearning::bot.currentState.y, Actions::getPosition(a)));
+            // Choose strategy of update traces.
+            QLearning::bot.tables.updateValueE(QLearning::bot.currentState, Actions::getPosition(a), QLearning::bot.tables.getValueE(QLearning::bot.currentState, Actions::getPosition(a)));
 
-            // TODO Incluir bucle for.
+            // Update tables-
+            for(int i = 0; i < QLearning::bot.tables.getSizesTableE().at(0); i++){
+                // Update table Q.
+                float newQ = QLearning::alpha * delta * QLearning::bot.tables.getValueE(QLearning::bot.currentState, a);
+                QLearning::bot.tables.updateValueQ(QLearning::bot.currentState, a,newQ);
+                //Update table E.
+                if(a == aP){
+                    float newE = QLearning::lambda * QLearning::gamma * QLearning::bot.tables.getValueE(QLearning::bot.currentState, a);
+                    QLearning::bot.tables.updateValueE(QLearning::bot.currentState, a, newE);
+                } else {
+                    QLearning::bot.tables.updateValueE(QLearning::bot.currentState, a, 0);
+                }
+                QLearning::bot.currentState = sP;
+                a = aP;
+            }
         }
 
         QLearning::bot.currentState = sP;

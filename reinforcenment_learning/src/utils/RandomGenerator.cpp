@@ -9,8 +9,8 @@
 
 std::mt19937 RandomGenerator::mt(time(nullptr));
 
-double RandomGenerator::getDouble(double start, double end) {
-    std::uniform_real_distribution<double> dist(start, end);
+float RandomGenerator::getFloat(float start, float end) {
+    std::uniform_real_distribution<float> dist(start, end);
     return dist(mt);
 }
 

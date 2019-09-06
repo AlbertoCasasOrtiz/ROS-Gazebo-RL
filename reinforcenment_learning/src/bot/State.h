@@ -6,12 +6,12 @@
 #define SRC_STATE_H
 
 
+#include "../utils/Point.h"
+
 class State {
 public:
-    /// Coordenate X in the grid.
-    int x;
-    /// Coordenate Y in the grid.
-    int y;
+    /// Position of the robot.
+    Point p = Point(0, 0);
 
     /// Operator of equality of states.
     /// \param s Another state.
@@ -22,6 +22,16 @@ public:
     /// \param s Another state.
     /// \return true if the states are different, false otherwise.
     bool operator != (State const &s);
+
+    /// Operator of lessority of states.
+    /// \param s Another state.
+    /// \return true if the states are less than other, false otherwise.
+    bool operator < (State const &s) const;
+
+    /// Constructor of State.
+    /// \param x Position x of the robot.
+    /// \param y Position y of the robot.
+    State(int x, int y);
 };
 
 

@@ -5,6 +5,8 @@
 #ifndef SRC_RANDOMGENERATOR_H
 #define SRC_RANDOMGENERATOR_H
 
+#include <time.h>
+#include <random>
 
 class RandomGenerator {
 private:

@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by alberto on 6/09/19.
 //
@@ -69,7 +71,7 @@ Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
         action = Actions::getAction(n);
     } else {
         // Return best action.
-        action = Actions::bestAction(bot);
+        action = Actions::bestAction(std::move(bot));
     }
 
     return action;
@@ -78,8 +80,8 @@ Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
 Actions::Action Actions::bestAction(Bot bot) {
     Actions::Action bestAction = Actions::Action::UP;
     float max = std::numeric_limits<int>::min();
-    for(int i = 0; i < bot.qTable.getSizesTableQ().at(2); i++) {
-        float actionValue = bot.qTable.getValueQ(bot.currentState.x, bot.currentState.y, i);
+    for(int i = 0; i < bot.tables.getSizesTableQ().at(2); i++) {
+        float actionValue = bot.tables.getValueQ(bot.currentState, i);
         if (actionValue > max) {
             bestAction = Actions::getAction(i);
             max = actionValue;
