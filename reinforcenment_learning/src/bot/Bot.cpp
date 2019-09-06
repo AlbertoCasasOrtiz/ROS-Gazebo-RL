@@ -6,6 +6,6 @@
 
 Bot::Bot(State currentState){
     Bot::currentState = currentState;
-    Bot::tables.initializeTableQ(currentState);
-    Bot::tables.initializeTableE(currentState);
+    Bot::tableE.initializeTable(currentState);
+    Bot::tableQ.initializeTable(currentState);
 }

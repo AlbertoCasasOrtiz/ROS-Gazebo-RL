@@ -46,7 +46,7 @@ public:
     /// \param bot Bot that takes the action.
     /// \param action Action to take.
     /// \return State result of take an action.
-    static State takeAction(const Bot& bot, Action action);
+    static State takeAction(Bot *bot, Action action);
 };
 
 

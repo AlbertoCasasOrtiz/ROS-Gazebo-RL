@@ -17,8 +17,10 @@ public:
 public:
     /// Current state of the robot.
     State currentState = State(0, 0);
-    /// QTable with learned values.
-    Table tables;
+    /// Table with Q values.
+    Table tableQ;
+    /// Table with E valus.
+    Table tableE;
 };
 
 

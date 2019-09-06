@@ -11,48 +11,31 @@
 
 class Table {
 private:
-    /// Table that stores the probability of taking an action. [x][y][a]
-    std::map<State,std::vector<float>> tableQ;
-    /// Table that stores elegibility traces of an execution. [x][y][a]
-    std::map<State,std::vector<float>> tableE;
+    /// Table that stores values for pairs state action. [x][y][a]
+    std::map<State,std::vector<float>> table;
 
 public:
-    /// Initialize table Q to 0.
-    void initializeTableQ(State initial);
-    /// Initialize table E to 0.
-    void initializeTableE(State initial);
+    /// Initialize table to 0.
+    void initializeTable(State initial);
 
-    /// Update a value in the table Q.
+    /// Update a value in the table.
     /// \param p Position of the robot.
     /// \param a Action taken by the robot.
-    /// \param value Value added to the table Q cell.
-    void updateValueQ(State p, int a, float value);
-    /// Update a value in the table E.
+    /// \param value Value added to the table cell.
+    void updateValue(State p, int a, float value);
+
+    /// Get a value in the table.
     /// \param p Position of the robot.
     /// \param a Action taken by the robot.
-    /// \param value Value added to the table Q cell.
-    void updateValueE(State p, int a, float value);
+    float getValue(State p, int a);
 
-    /// Get a value in the table Q.
-    /// \param p Position of the robot.
-    /// \param a Action taken by the robot.
-    float getValueQ(State p, int a);
+    /// Get sizes of all dimensions of the table.
+    /// \return Vector with sizes of all dimensions of the table.
+    std::vector<int> getSizesTable();
 
-    /// Get a value in the table E.
-    /// \param p Position of the robot.
-    /// \param a Action taken by the robot.
-    float getValueE(State p, int a);
-
-    /// Get sizes of all dimensions of the table Q.
-    /// \return Vector with sizes of all dimensions of the table Q.
-    std::vector<int> getSizesTableQ();
-
-    /// Get sizes of all dimensions of the table E.
-    /// \return Vector with sizes of all dimensions of the table E.
-    std::vector<int> getSizesTableE();
-
-
-
+    /// Add state to the table.
+    /// \param state A new state.
+    void addState(State state);
 };
 
 

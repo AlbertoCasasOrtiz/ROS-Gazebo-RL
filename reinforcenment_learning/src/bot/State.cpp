@@ -24,3 +24,7 @@ bool State::operator<(State const &s) const {
 
     return stringP1 < stringP2;
 }
+
+std::string State::toString() {
+    return State::p.toString();
+}

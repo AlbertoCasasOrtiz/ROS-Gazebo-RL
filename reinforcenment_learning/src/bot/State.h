@@ -28,6 +28,10 @@ public:
     /// \return true if the states are less than other, false otherwise.
     bool operator < (State const &s) const;
 
+    /// Get string representation of a state.
+    /// \return String representation of a state.
+    std::string toString();
+
     /// Constructor of State.
     /// \param x Position x of the robot.
     /// \param y Position y of the robot.

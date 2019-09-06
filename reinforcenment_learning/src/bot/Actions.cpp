@@ -61,7 +61,6 @@ int Actions::getPosition(Actions::Action action) {
 
 Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
     Action action;
-
     // Generate random number between 0 and 1.
     float rand = RandomGenerator::getFloat(0, 1);
 
@@ -80,8 +79,8 @@ Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
 Actions::Action Actions::bestAction(Bot bot) {
     Actions::Action bestAction = Actions::Action::UP;
     float max = std::numeric_limits<int>::min();
-    for(int i = 0; i < bot.tables.getSizesTableQ().at(2); i++) {
-        float actionValue = bot.tables.getValueQ(bot.currentState, i);
+    for(int i = 0; i < Actions::size; i++) {
+        float actionValue = bot.tableQ.getValue(bot.currentState, i);
         if (actionValue > max) {
             bestAction = Actions::getAction(i);
             max = actionValue;
@@ -90,21 +89,26 @@ Actions::Action Actions::bestAction(Bot bot) {
     return bestAction;
 }
 
-State Actions::takeAction(const Bot& bot, Actions::Action action) {
-    State state = State(bot.currentState.p.x, bot.currentState.p.y);
+State Actions::takeAction(Bot *bot, Actions::Action action) {
+    // Create new state that is the consequence of taking the action.
+    State state = State(bot->currentState.p.x, bot->currentState.p.y);
     switch(action){
         case Actions::Action::UP:
-            state.p.x++;
-            break;
-        case Actions::Action::LEFT:
-            state.p.y--;
-            break;
-        case Actions::Action::RIGHT:
             state.p.y++;
             break;
-        case Actions::Action::DOWN:
+        case Actions::Action::LEFT:
             state.p.x--;
             break;
+        case Actions::Action::RIGHT:
+            state.p.x++;
+            break;
+        case Actions::Action::DOWN:
+            state.p.y--;
+            break;
     }
+
+    // Add the new state to the tables.
+    bot->tableE.addState(state);
+    bot->tableQ.addState(state);
     return state;
 }
