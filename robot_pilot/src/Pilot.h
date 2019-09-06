@@ -37,7 +37,7 @@ private:
     /// \param msg Message containing information.
     void odomCallback(const nav_msgs::Odometry::ConstPtr &msg);
 
-    // Commands
+    // Actions
     /// Execute the command FORWARD..
     /// \param velocity Linear velocity.
     void goForward(const nav_msgs::Odometry::ConstPtr &msg, float velocity);
