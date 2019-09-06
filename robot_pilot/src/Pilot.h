@@ -69,7 +69,8 @@ private:
     ros::Publisher cmdVelPublisher;
     /// Subscribe to topic /odom.
     ros::Subscriber odomSubscriber;
-
+    /// Publish if a command has been completed.
+    ros::Publisher commandCompletedPublisher;
 
     //Variables
     /// Queue of upcoming commands.
@@ -82,6 +83,8 @@ private:
     float posX, posY, turnZ;
     /// Flag to execute commands just once.
     bool flag_once;
+    /// Flag to notify the robot tha it has ended of moving.
+    bool flag_notified;
     /// Length of stepts taken by the robot.
     float stepDistance;
 

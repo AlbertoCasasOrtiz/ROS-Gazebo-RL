@@ -11,6 +11,7 @@ Pilot::Pilot(int argc, char **argv) {
     robotSpeed = robotAngularSpeed = 0.3;
     posX = posY = turnZ = 0;
     flag_once = true;
+    flag_notified = true;
     stepDistance = 0.85;
 
     // ROS starts here.
@@ -21,6 +22,7 @@ Pilot::Pilot(int argc, char **argv) {
 
     // Inidialize subscribers and publishers
     Pilot::cmdVelPublisher = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+    Pilot::commandCompletedPublisher = nh.advertise<std_msgs::String>("/commander", 10);
     Pilot::odomSubscriber = nh.subscribe("/odom", 1, &Pilot::odomCallback, this);
     Pilot::commandSubscriber = nh.subscribe("/commander", 1, &Pilot::commanderCallback, this);
 
@@ -37,7 +39,19 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
     // If there are no commands, stop.
     if(Pilot::commands.empty()) {
         Pilot::stop();
+        if(flag_notified) {
+            flag_notified = false;
+
+            //Send message
+            std_msgs::String str;
+            std::stringstream ss;
+            ss << "true";
+            str.data = ss.str();
+            Pilot::commandCompletedPublisher.publish(str);
+        }
     } else {
+        // Activate flag notified for when the command is complete.
+        flag_notified = true;
         // Take first element of the queue.
         switch(commands.front()){
             case Commands::FORWARD:
