@@ -1,0 +1,8 @@
+# Macro's
+[attr]cpp       diff=cpp whitespace=trailing-space,space-before-tab,indent-with-non-tab,tabwidth=4
+[attr]makefile  whitespace=trailing-space,indent-with-non-tab,space-before-tab,tabwidth=4
+
+*.[ch]        cpp
+*.[ch]pp      cpp
+makefile      makefile
+s.makefile    makefile
