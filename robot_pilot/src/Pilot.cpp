@@ -10,11 +10,10 @@ Pilot::Pilot(int argc, char **argv) {
     heading = Pilot::Dir::UP;
     robotSpeed = robotAngularSpeed = 0.2;
     posX = posY = turnZ = 0;
-    flag_once = true;
-    flag_notified = true;
     stepDistance = 0.85;
-    firstTime = true;
-
+    sentReady = true;
+    flag_once = true;
+    
     // ROS starts here.
     ros::init(argc, argv, "pilot");
 
@@ -40,35 +39,27 @@ Pilot::Pilot(int argc, char **argv) {
 }
 
 void Pilot::commanderCallback(const std_msgs::String::ConstPtr &msg) {
-    Pilot::parseAction(msg->data.c_str());
-    // If not possible, send message.
-    if(!Pilot::possibleAction){
-        //Send message
-        Pilot::sendMessage("1");
+    ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
+    Pilot::parseAction(msg->data);
+    if(!possibleAction){
+        sendMessage("not possible");
     } else {
-        ROS_INFO("Command received: [%s]", msg->data.c_str());
+        sendMessage("possible");
     }
 }
 
 void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
-    if(Pilot::firstTime){
-        ROS_INFO("SENT");
-        //Send message to receive first action
-        Pilot::sendMessage("0");
-        Pilot::firstTime = false;
+    // Advertise the commander that we are ready.
+    if(sentReady) {
+        Pilot::sendMessage("init");
+        sentReady = false;
     }
 
     // If there are no commands, stop.
     if(Pilot::commands.empty()) {
         Pilot::stop();
-        if(flag_notified) {
-            flag_notified = false;
-
-            Pilot::sendMessage("2");
-        }
+        Pilot::sendMessage("next movement");
     } else {
-        // Activate flag notified for when the command is complete.
-        flag_notified = true;
         // Take first element of the queue.
         switch(commands.front()){
             case Commands::FORWARD:
@@ -384,12 +375,14 @@ void Pilot::parseAction(const std::string& action) {
 
 
 void Pilot::sendMessage(const std::string& message){
+    ROS_INFO("SENT [%s]", message.c_str());
     //Send message
     std_msgs::String str;
     std::stringstream ss;
     ss << message;
     str.data = ss.str();
     Pilot::commandCompletedPublisher.publish(str);
+
 }
 
 

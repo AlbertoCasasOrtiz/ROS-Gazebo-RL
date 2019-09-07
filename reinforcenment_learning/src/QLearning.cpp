@@ -5,6 +5,7 @@
 #include "QLearning.h"
 #include "bot/Actions.h"
 #include <ros/ros.h>
+#include <thread>
 
 QLearning::QLearning(int argc, char **argv) {
     // TODO Initialize values here.
@@ -18,8 +19,9 @@ QLearning::QLearning(int argc, char **argv) {
     QLearning::goalState = State(2, 2);
     QLearning::bot = Bot(QLearning::initialState);
 
-    QLearning::flagRobotEnded = false;
-    QLearning::flagPossibleAction = false;
+    flag_pilot_ready = false;
+    flag_initialize = true;
+    flag_terminated_possible = true;
 
     // ROS starts here.
     ros::init(argc, argv, "commander");
@@ -33,110 +35,13 @@ QLearning::QLearning(int argc, char **argv) {
     // Publish commands to pilot.
     QLearning::commandPublisher = nh.advertise<std_msgs::String>("/pilot", 10);
     // Execute algorithm.
+
     QLearning::execute();
 
+    ros::spin();
 }
 
 void QLearning::execute() {
-    State sP = State(0, 0);
-    Actions::Action aP;
-    Actions::Action aS;
-    float delta = 0.0;
-
-    // Initialize table Q.;
-    QLearning::bot.tableQ.initializeTable(QLearning::bot.currentState);
-
-    for(int i = 0; i < QLearning::numEpisodes; i++){
-        // Initialize table E.
-        QLearning::bot.tableE.initializeTable(QLearning::bot.currentState);
-
-        // Initialize S and A.
-        Actions::Action a = Actions::getAction(-1);
-        //ROS_INFO("a [%s]", Actions::toString(a).c_str());
-        QLearning::bot.currentState = QLearning::initialState;
-
-        ROS_INFO("Waiting robot status.");
-        while(!endCondition()) {
-
-
-            // Spin for subscribers.
-            ros::spinOnce();
-
-            if(QLearning::flagFirstTime){
-                QLearning::sendMessage(a);
-                QLearning::flagFirstTime = false;
-            }
-
-            // Wait until robot_ends notified.
-            if (flagRobotEnded) {
-
-                // Get action from eGreedy.
-                aP = Actions::eGreedy(QLearning::bot, QLearning::epsilon);
-                QLearning::sendMessage(aP);
-
-                if (flagPossibleAction) {
-
-                    sP = Actions::takeAction(&(QLearning::bot), a);
-                    ROS_INFO("a [%s]", Actions::toString(a).c_str());
-                    //ROS_INFO("sP [(%i, %i)]", sP.p.x, sP.p.y);
-
-                    // Observe reward of sP
-                    float reward = QLearning::getReward(sP);
-                    //ROS_INFO("Reward [%f]", reward);
-
-                    //ROS_INFO("aP [%s]", Actions::toString(aP).c_str());
-                    // Get best action.
-                    aS = Actions::bestAction(QLearning::bot);
-                    //ROS_INFO("aS [%s]", Actions::toString(aS).c_str());
-
-                    //ROS_INFO("TableQ size [%d]", QLearning::bot.tableQ.getSizesTable().at(0));
-                    //ROS_INFO("State [%s]", sP.toString().c_str());
-
-                    // Update delta.
-                    float QSpA = QLearning::bot.tableQ.getValue(sP, Actions::getPosition(aS));
-                    //ROS_INFO("QSA [%f]", QSpA);
-                    float QSpAs = QLearning::bot.tableQ.getValue(QLearning::bot.currentState, Actions::getPosition(a));
-                    //ROS_INFO("QSpAs [%f]", QSpAs);
-                    delta = reward + QLearning::gamma * QSpA - QSpAs;
-                    //ROS_INFO("delta [%f]", delta);
-
-                    // Choose strategy of update traces.
-                    float ESA = QLearning::bot.tableE.getValue(QLearning::bot.currentState, Actions::getPosition(a));
-                    QLearning::bot.tableE.updateValue(QLearning::bot.currentState, Actions::getPosition(a), ESA + 1);
-
-                    // Update tables-
-                    for (int i = 0; i < QLearning::bot.tableQ.getSizesTable().at(0); i++) {
-                        // Update table Q.
-                        float newQ =
-                                QLearning::alpha * delta *
-                                QLearning::bot.tableE.getValue(QLearning::bot.currentState, a);
-                        QLearning::bot.tableQ.updateValue(QLearning::bot.currentState, a, newQ);
-                        //Update table E.
-                        if (aS == aP) {
-                            float newE = QLearning::lambda * QLearning::gamma *
-                                         QLearning::bot.tableE.getValue(QLearning::bot.currentState, a);
-                            QLearning::bot.tableE.updateValue(QLearning::bot.currentState, a, newE);
-                        } else {
-                            QLearning::bot.tableE.updateValue(QLearning::bot.currentState, a, 0);
-                        }
-
-                    }
-
-                    a = aP;
-                    ROS_INFO("State Before: [%i][%i]", QLearning::bot.currentState.p.x, QLearning::bot.currentState.p.y);
-                    QLearning::bot.currentState = sP;
-                    ROS_INFO("State After: [%i][%i]", QLearning::bot.currentState.p.x, QLearning::bot.currentState.p.y);
-                    flagPossibleAction = false;
-                    ROS_INFO("Waiting robot status.");
-                } else {
-                    //If action not possible mark probability of take it as minus infinity.
-                    QLearning::bot.tableQ.updateValue(QLearning::bot.currentState, a, std::numeric_limits<int>::min());
-                }
-                flagRobotEnded = false;
-
-            }
-        }
-    }
 }
 
 float QLearning::getReward(State state) {
@@ -146,30 +51,86 @@ float QLearning::getReward(State state) {
 }
 
 bool QLearning::endCondition() {
+    newEpisode = true;
     return QLearning::bot.currentState == QLearning::goalState;
 }
 
 void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
-    if(std::string(msg->data) == "0"){
-        QLearning::flagFirstTime = true;
-        QLearning::flagRobotEnded = true;
-        QLearning::flagPossibleAction = true;
-    } else if (std::string(msg->data) == "1"){
-        QLearning::flagRobotEnded = true;
-        QLearning::flagPossibleAction = false;
-    } else if (std::string(msg->data) == "2"){
-        QLearning::flagRobotEnded = true;
-        QLearning::flagPossibleAction = true;
-    }
+    ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
+    if(std::string(msg->data) == "init") {
+        // Initialize table Q.;
+        QLearning::bot.tableQ.initializeTable(QLearning::bot.currentState);
+        flag_initialize = false;
 
+    } if(newEpisode) {
+        // Initialize table E.
+        QLearning::bot.tableE.initializeTable(QLearning::bot.currentState);
+
+        // Initialize S and A.
+        QLearning::bot.currentState = QLearning::initialState;
+        a = Actions::getAction(0);
+        newEpisode = false;
+    } else {
+        if(!endCondition()) {
+            if (std::string(msg->data) == "not possible" || std::string(msg->data) == "next movement") {
+
+                // Take action a.
+                sP = Actions::takeAction(&(QLearning::bot), a);
+                // Observe reward of sP
+                float reward = QLearning::getReward(sP);
+
+                // Get action from eGreedy.
+                aP = Actions::eGreedy(sP, QLearning::epsilon);
+                sendMessage(aP);
+            } else if (std::string(msg->data) == "possible") {
+                // Get best action.
+                aS = Actions::bestAction(QLearning::bot);
+
+                // Update delta.
+                float QSpA = QLearning::bot.tableQ.getValue(sP, Actions::getPosition(aS));
+                float QSpAs = QLearning::bot.tableQ.getValue(QLearning::bot.currentState, Actions::getPosition(a));
+                delta = reward + QLearning::gamma * QSpA - QSpAs;
+
+                // Choose strategy of update traces.
+                float ESA = QLearning::bot.tableE.getValue(QLearning::bot.currentState, Actions::getPosition(a));
+                QLearning::bot.tableE.updateValue(QLearning::bot.currentState, Actions::getPosition(a), ESA + 1);
+
+                // Update tables-
+                for (int i = 0; i < QLearning::bot.tableQ.getSizesTable().at(0); i++) {
+                    // Update table Q.
+                    float newQ =
+                            QLearning::alpha * delta *
+                            QLearning::bot.tableE.getValue(QLearning::bot.currentState, a);
+                    QLearning::bot.tableQ.updateValue(QLearning::bot.currentState, a, newQ);
+                    //Update table E.
+                    if (aS == aP) {
+                        float newE = QLearning::lambda * QLearning::gamma *
+                                     QLearning::bot.tableE.getValue(QLearning::bot.currentState, a);
+                        QLearning::bot.tableE.updateValue(QLearning::bot.currentState, a, newE);
+                    } else {
+                        QLearning::bot.tableE.updateValue(QLearning::bot.currentState, a, 0);
+                    }
+
+                }
+                // Update robot status and a.
+                a = aP;
+                QLearning::bot.currentState = sP;
+
+                //ROS_INFO("Waiting robot status.");
+            }
+        } else{
+            newEpisode = true;
+        }
+    }
 }
 
 void QLearning::sendMessage(Actions::Action action) {
+    ROS_INFO("SENT [%s]", Actions::toString(action).c_str());
     //Send message
     std_msgs::String str;
     std::stringstream ss;
 
     ss << Actions::toString(action);
     str.data = ss.str();
-    QLearning::commandPublisher.publish(str);
+    commandPublisher.publish(str);
 }

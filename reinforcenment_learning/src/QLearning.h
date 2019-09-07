@@ -11,6 +11,8 @@
 #include "bot/Table.h"
 #include "bot/Actions.h"
 #include <std_msgs/String.h>
+#include <mutex>
+#include <condition_variable>
 
 class QLearning {
 public:
@@ -57,20 +59,26 @@ private:
     /// Inner representation of the robot.
     Bot bot = Bot(State(0, 0));
 
-    /// Indicates if an action is possible.
-    bool flagPossibleAction = false;
-
-    /// Indicates if the robot has finished it movement.
-    bool flagRobotEnded = false;
-
-    /// Indicates that is the first message sended.
-    bool flagFirstTime = true;
-
     /// Subscribe to pilot to receive robot status.
     ros::Subscriber commanderSubscriber;
 
     /// Publish commands to pilot
     ros::Publisher commandPublisher;
+
+    bool flag_pilot_ready;
+
+    bool flag_initialize;
+
+    bool flag_terminated_possible;
+
+    State sP = State(0, 0);
+
+    Actions::Action a;
+    Actions::Action aP;
+    Actions::Action aS;
+    float delta = 0.0;
+    bool newEpisode;
+    float reward;
 };
 
 

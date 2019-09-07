@@ -112,19 +112,16 @@ private:
     float posX, posY, turnZ;
     /// Flag to execute commands just once.
     bool flag_once;
-    /// Flag to notify the robot tha it has ended of moving.
-    bool flag_notified;
     /// Length of stepts taken by the robot.
     float stepDistance;
 
     /// True if the action is possible.
     bool possibleAction;
 
-    /// Send first command.
-    bool firstTime;
-
     /// True if obstacle in a direction.
     bool obstacleLeft, obstacleFront, obstacleBack, obstacleRight;
+
+    bool sentReady;
 };
 
 #endif //SRC_PILOT_H
