@@ -78,17 +78,17 @@ Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
         action = Actions::getAction(n);
     } else {
         // Return best action.
-        action = Actions::bestAction(std::move(bot));
+        action = Actions::bestAction(std::move(bot), bot.currentState);
     }
 
     return action;
 }
 
-Actions::Action Actions::bestAction(Bot bot) {
+Actions::Action Actions::bestAction(Bot bot, State state) {
     Actions::Action bestAction = Actions::Action::UP;
     float max = std::numeric_limits<int>::min();
     for(int i = 0; i < Actions::size; i++) {
-        float actionValue = bot.tableQ.getValue(bot.currentState, i);
+        float actionValue = bot.tableQ.getValue(state, i);
         if (actionValue > max) {
             bestAction = Actions::getAction(i);
             max = actionValue;

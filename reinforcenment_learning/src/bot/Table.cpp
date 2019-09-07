@@ -5,6 +5,7 @@
 #include "Table.h"
 #include "Actions.h"
 #include <ros/ros.h>
+#include <fstream>
 
 void Table::initializeTable(State state) {
     std::vector<float> actions;
@@ -44,4 +45,14 @@ void Table::addState(State state){
         actions.push_back(0.0);
 
     Table::table.emplace(state, actions);
+}
+
+void Table::printTable(std::string name) {
+    std::ofstream file(name);
+
+    for(std::map<State, std::vector<float>>::const_iterator it = Table::table.begin(); it != Table::table.end(); ++it)
+    {
+        file << it->first.p.x << " " << it->first.p.y << "-" << it->second.at(0) << " " << it->second.at(1) << " " << it->second.at(2) << " " << it->second.at(3) << "\n";
+    }
+    file.close();
 }

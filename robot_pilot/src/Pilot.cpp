@@ -8,7 +8,8 @@
 Pilot::Pilot(int argc, char **argv) {
     // Initializations
     heading = Pilot::Dir::UP;
-    robotSpeed = robotAngularSpeed = 0.2;
+    robotSpeed = 0.4;
+    robotAngularSpeed = 0.3;
     posX = posY = turnZ = 0;
     stepDistance = 0.8;
     flag_once = true;
@@ -30,10 +31,10 @@ Pilot::Pilot(int argc, char **argv) {
     Pilot::commandSubscriber = nh.subscribe("/pilot", 1, &Pilot::commanderCallback, this);
 
     // Subscribe to range sensors
-    Pilot::rangeSubscriberFront = nh.subscribe("/sensor/ir_front", 1, &Pilot::irFrontCallback, this);
-    Pilot::rangeSubscriberLeft = nh.subscribe("/sensor/ir_left", 1, &Pilot::irLeftCallback, this);
-    Pilot::rangeSubscriberRight = nh.subscribe("/sensor/ir_right", 1, &Pilot::irRightCallback, this);
-    Pilot::rangeSubscriberBack = nh.subscribe("/sensor/ir_back", 1, &Pilot::irBackCallback, this);
+    Pilot::rangeSubscriberFront = nh.subscribe("/sensor/ir_front", 10, &Pilot::irFrontCallback, this);
+    Pilot::rangeSubscriberLeft = nh.subscribe("/sensor/ir_left", 10, &Pilot::irLeftCallback, this);
+    Pilot::rangeSubscriberRight = nh.subscribe("/sensor/ir_right", 10, &Pilot::irRightCallback, this);
+    Pilot::rangeSubscriberBack = nh.subscribe("/sensor/ir_back", 10, &Pilot::irBackCallback, this);
 
     // Spin for subscribers.
     ros::spin();

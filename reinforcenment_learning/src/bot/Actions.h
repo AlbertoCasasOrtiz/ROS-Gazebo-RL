@@ -13,7 +13,7 @@ public:
     /// Number of actions.
     const static int size = 4;
     /// Actions that the robot can execute.
-    enum Action{UP, DOWN, LEFT, RIGHT, STOP};
+    enum Action{UP, LEFT, RIGHT, DOWN, STOP};
 
     /// Parse a action in string representation.
     /// \param action String representation of a action.
@@ -40,7 +40,7 @@ public:
     /// Get the best action that the bot can take.
     /// \param bot Bot with its current state and tables.
     /// \return Selected action by the metod.
-    static Actions::Action bestAction(Bot bot);
+    static Actions::Action bestAction(Bot bot, State state);
 
     /// Take and action and return state.
     /// \param bot Bot that takes the action.

@@ -11,10 +11,10 @@
 
 class Table {
 private:
+public:
     /// Table that stores values for pairs state action. [x][y][a]
     std::map<State,std::vector<float>> table;
 
-public:
     /// Initialize table to 0.
     void initializeTable(State initial);
 
@@ -37,6 +37,8 @@ public:
     /// \param state A new state.
     void addState(State state);
 
+    /// Print table into file.
+    void printTable(std::string name);
 };
 
 
