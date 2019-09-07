@@ -39,11 +39,7 @@ void Pilot::commanderCallback(const std_msgs::String::ConstPtr &msg) {
     // If not possible, send message.
     if(!Pilot::possibleAction){
         //Send message
-        std_msgs::String str;
-        std::stringstream ss;
-        ss << "1";
-        str.data = ss.str();
-        Pilot::commandCompletedPublisher.publish(str);
+        Pilot::sendMessage("1");
     }
 }
 
@@ -51,12 +47,7 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
     if(Pilot::firstTime){
         ROS_INFO("SENT");
         //Send message to receive first action
-        std_msgs::String str;
-        std::stringstream ss;
-        ss << "2";
-        str.data = ss.str();
-        Pilot::commandCompletedPublisher.publish(str);
-        Pilot::firstTime = false;
+        Pilot::sendMessage("2");
     }
 
     // If there are no commands, stop.
@@ -65,12 +56,7 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
         if(flag_notified) {
             flag_notified = false;
 
-            //Send message of possible action and robot ended.
-            std_msgs::String str;
-            std::stringstream ss;
-            ss << "2";
-            str.data = ss.str();
-            Pilot::commandCompletedPublisher.publish(str);
+            Pilot::sendMessage("2");
         }
     } else {
         // Activate flag notified for when the command is complete.
@@ -325,4 +311,14 @@ void Pilot::parseAction(const std::string& action) {
             Pilot::possibleAction = true;
         }
     }
+}
+
+
+void Pilot::sendMessage(const std::string& message){
+    //Send message
+    std_msgs::String str;
+    std::stringstream ss;
+    ss << message;
+    str.data = ss.str();
+    Pilot::commandCompletedPublisher.publish(str);
 }

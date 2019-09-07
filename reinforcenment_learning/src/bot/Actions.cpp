@@ -15,17 +15,15 @@
 std::string Actions::toString(Actions::Action action) {
     switch(action){
         case Actions::Action::UP:
-            ROS_INFO("RETURN UP");
             return "UP";
         case Actions::Action::LEFT:
-            ROS_INFO("RETURN LEFT");
             return "LEFT";
         case Actions::Action::RIGHT:
-            ROS_INFO("RETURN RIGHT");
             return "RIGHT";
         case Actions::Action::DOWN:
-            ROS_INFO("RETURN DOWN");
             return "DOWN";
+        case Actions::Action ::STOP:
+            return "STOP";
         default:
             ROS_ERROR("Wrong action in toString.");
             return "";
@@ -42,6 +40,8 @@ Actions::Action Actions::getAction(int i) {
             return Actions::Action::RIGHT;
         case 3:
             return Actions::Action::DOWN;
+        case 5:
+            return Actions::Action ::STOP;
         default:
             ROS_ERROR("Wrong action number [%i].", i);
             return Actions::Action::UP;
@@ -59,6 +59,8 @@ int Actions::getPosition(Actions::Action action) {
             return 2;
         case Actions::Action::DOWN:
             return 3;
+        case Actions::Action ::STOP:
+            return 4;
         default:
             ROS_ERROR("Wrong action in get position.");
             return -1;
@@ -72,7 +74,7 @@ Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
 
     if(rand < epsilon){
         // Return random action.
-        int n = RandomGenerator::getInt(0, 4);
+        int n = RandomGenerator::getInt(0, Actions::size);
         action = Actions::getAction(n);
     } else {
         // Return best action.

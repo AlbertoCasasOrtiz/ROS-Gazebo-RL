@@ -28,6 +28,10 @@ public:
     Pilot(int argc, char **argv);
 
 private:
+    /// Send message to the robot. 1 -> Not ended, Not possible, 2 -> Ended, Nor Possible, 3 -> Ended and possible.
+    /// \param message  Message to send.
+    void sendMessage(const std::string& message);
+
     // Callback functions
     /// Receives and processes commands from a topic.
     /// \param msgs Message containing the command.

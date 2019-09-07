@@ -15,7 +15,7 @@ QLearning::QLearning(int argc, char **argv) {
     QLearning::lambda = 0.2;
 
     QLearning::initialState = State(0, 0);
-    QLearning::goalState = State(3, 0);
+    QLearning::goalState = State(2, 2);
     QLearning::bot = Bot(QLearning::initialState);
 
     QLearning::flagRobotEnded = false;
@@ -64,13 +64,8 @@ void QLearning::execute() {
 
             // Wait until robot_ends notified.
             if (flagRobotEnded) {
-                //Send message
-                std_msgs::String str;
-                std::stringstream ss;
 
-                ss << Actions::toString(a);
-                str.data = ss.str();
-                QLearning::commandPublisher.publish(str);
+                QLearning::sendMessage(a);
 
                 if (flagPossibleAction) {
 
@@ -143,6 +138,7 @@ float QLearning::getReward(State state) {
 }
 
 bool QLearning::endCondition() {
+    QLearning::sendMessage(Actions::Action::STOP);
     return QLearning::bot.currentState == QLearning::goalState;
 }
 
@@ -159,4 +155,14 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
         QLearning::flagPossibleAction = true;
     }
 
+}
+
+void QLearning::sendMessage(Actions::Action action) {
+    //Send message
+    std_msgs::String str;
+    std::stringstream ss;
+
+    ss << Actions::toString(action);
+    str.data = ss.str();
+    QLearning::commandPublisher.publish(str);
 }

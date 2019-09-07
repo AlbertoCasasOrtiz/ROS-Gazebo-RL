@@ -13,7 +13,7 @@ public:
     /// Number of actions.
     const static int size = 4;
     /// Actions that the robot can execute.
-    enum Action{UP, DOWN, LEFT, RIGHT};
+    enum Action{UP, DOWN, LEFT, RIGHT, STOP};
 
     /// Parse a action in string representation.
     /// \param action String representation of a action.

@@ -9,6 +9,7 @@
 #include <ros/ros.h>
 #include "bot/Bot.h"
 #include "bot/Table.h"
+#include "bot/Actions.h"
 #include <std_msgs/String.h>
 
 class QLearning {
@@ -30,6 +31,12 @@ private:
     /// Receives and processes status from the pilot topic.
     /// \param msgs Message containing the status.
     void commanderCallback(const std_msgs::String::ConstPtr &msg);
+
+    /**
+     * Send a message to the pilot.
+     * @param action Action in the message.
+     */
+    void sendMessage(Actions::Action action);
 
     /// Max number of episodes of the algorithm-
     int numEpisodes = 0;
