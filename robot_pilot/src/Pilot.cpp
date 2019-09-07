@@ -252,6 +252,12 @@ void Pilot::parseAction(const std::string& action) {
             Pilot::commands.push(Pilot::Commands::FORWARD);
             Pilot::possibleAction = true;
         }
+        if(Pilot::heading == Pilot::Dir::DOWN) {
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
 
     } else if (action == "LEFT"){
         if(Pilot::heading == Pilot::Dir::UP){
@@ -268,20 +274,35 @@ void Pilot::parseAction(const std::string& action) {
             Pilot::commands.push(Pilot::Commands::FORWARD);
             Pilot::possibleAction = true;
         }
+        if(Pilot::heading == Pilot::Dir::RIGHT){
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
 
     } else if (action == "RIGHT"){
         if(Pilot::heading == Pilot::Dir::UP){
             Pilot::commands.push(Pilot::Commands::RIGHT);
             Pilot::commands.push(Pilot::Commands::FORWARD);
             Pilot::possibleAction = true;
-        } else if(Pilot::heading == Pilot::Dir::RIGHT){
+        }
+        if(Pilot::heading == Pilot::Dir::RIGHT){
             Pilot::commands.push(Pilot::Commands::FORWARD);
             Pilot::possibleAction = true;
-        } else if(Pilot::heading == Pilot::Dir::DOWN){
+        }
+        if(Pilot::heading == Pilot::Dir::DOWN){
             Pilot::commands.push(Pilot::Commands::LEFT);
             Pilot::commands.push(Pilot::Commands::FORWARD);
             Pilot::possibleAction = true;
         }
+        if(Pilot::heading == Pilot::Dir::LEFT){
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+
     } else if (action == "DOWN"){
         if(Pilot::heading == Pilot::Dir::RIGHT){
             Pilot::commands.push(Pilot::Commands::RIGHT);
@@ -292,7 +313,14 @@ void Pilot::parseAction(const std::string& action) {
             Pilot::commands.push(Pilot::Commands::LEFT);
             Pilot::commands.push(Pilot::Commands::FORWARD);
             Pilot::possibleAction = true;
-        } else if(Pilot::heading == Pilot::Dir::DOWN){
+        }
+        if(Pilot::heading == Pilot::Dir::DOWN){
+            Pilot::commands.push(Pilot::Commands::FORWARD);
+            Pilot::possibleAction = true;
+        }
+        if(Pilot::heading == Pilot::Dir::UP){
+            Pilot::commands.push(Pilot::Commands::RIGHT);
+            Pilot::commands.push(Pilot::Commands::RIGHT);
             Pilot::commands.push(Pilot::Commands::FORWARD);
             Pilot::possibleAction = true;
         }
