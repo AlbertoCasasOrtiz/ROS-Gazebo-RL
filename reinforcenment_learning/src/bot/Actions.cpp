@@ -15,14 +15,19 @@
 std::string Actions::toString(Actions::Action action) {
     switch(action){
         case Actions::Action::UP:
+            ROS_INFO("RETURN UP");
             return "UP";
         case Actions::Action::LEFT:
-            return "LEFT;";
+            ROS_INFO("RETURN LEFT");
+            return "LEFT";
         case Actions::Action::RIGHT:
+            ROS_INFO("RETURN RIGHT");
             return "RIGHT";
         case Actions::Action::DOWN:
+            ROS_INFO("RETURN DOWN");
             return "DOWN";
         default:
+            ROS_ERROR("Wrong action in toString.");
             return "";
     }
 }
@@ -55,6 +60,7 @@ int Actions::getPosition(Actions::Action action) {
         case Actions::Action::DOWN:
             return 3;
         default:
+            ROS_ERROR("Wrong action in get position.");
             return -1;
     }
 }

@@ -8,11 +8,12 @@
 Pilot::Pilot(int argc, char **argv) {
     // Initializations
     heading = Pilot::Dir::UP;
-    robotSpeed = robotAngularSpeed = 0.3;
+    robotSpeed = robotAngularSpeed = 0.2;
     posX = posY = turnZ = 0;
     flag_once = true;
     flag_notified = true;
     stepDistance = 0.85;
+    firstTime = true;
 
     // ROS starts here.
     ros::init(argc, argv, "pilot");
@@ -35,6 +36,15 @@ Pilot::Pilot(int argc, char **argv) {
 void Pilot::commanderCallback(const std_msgs::String::ConstPtr &msg) {
     ROS_INFO("Command received: [%s]", msg->data.c_str());
     Pilot::parseAction(msg->data.c_str());
+    // If not possible, send message.
+    if(!Pilot::possibleAction){
+        //Send message
+        std_msgs::String str;
+        std::stringstream ss;
+        ss << "1";
+        str.data = ss.str();
+        Pilot::commandCompletedPublisher.publish(str);
+    }
 }
 
 void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
@@ -55,14 +65,10 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
         if(flag_notified) {
             flag_notified = false;
 
-            //Send message
+            //Send message of possible action and robot ended.
             std_msgs::String str;
             std::stringstream ss;
-            if(!possibleAction) {
-                ss << "0";
-            } else{
-                ss << "2";
-            }
+            ss << "2";
             str.data = ss.str();
             Pilot::commandCompletedPublisher.publish(str);
         }
