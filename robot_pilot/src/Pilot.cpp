@@ -10,7 +10,7 @@ Pilot::Pilot(int argc, char **argv) {
     heading = Pilot::Dir::UP;
     robotSpeed = robotAngularSpeed = 0.2;
     posX = posY = turnZ = 0;
-    stepDistance = 0.85;
+    stepDistance = 0.8;
     flag_once = true;
 
     algorithm_initialized = false;

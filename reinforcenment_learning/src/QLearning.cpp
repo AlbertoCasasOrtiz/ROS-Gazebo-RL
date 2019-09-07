@@ -6,6 +6,7 @@
 #include "bot/Actions.h"
 #include <ros/ros.h>
 #include <thread>
+#include "std_srvs/Empty.h""
 
 QLearning::QLearning(int argc, char **argv) {
     // TODO Initialize values here.
@@ -130,6 +131,9 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
             } else {
                 QLearning::sendMessage(Actions::Action::STOP);
                 newEpisode = true;
+                std_srvs::Empty resetWorldSrv;
+                ros::service::call("/gazebo/reset_world", resetWorldSrv);
+                ros::service::call("/gazebo/reset_simulation", resetWorldSrv);
             }
         }
     }

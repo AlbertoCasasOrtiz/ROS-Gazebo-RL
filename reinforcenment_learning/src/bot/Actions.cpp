@@ -98,7 +98,6 @@ Actions::Action Actions::bestAction(Bot bot) {
 }
 
 State Actions::takeAction(Bot *bot, Actions::Action action) {
-    ROS_INFO("Taken action: [%s]", Actions::toString(action).c_str());
     // Create new state that is the consequence of taking the action.
     State state = State(bot->currentState.p.x, bot->currentState.p.y);
     switch(action){
