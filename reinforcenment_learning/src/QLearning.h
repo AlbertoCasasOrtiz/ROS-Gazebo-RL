@@ -23,9 +23,6 @@ public:
     /// \return Reward.
     float getReward(State state);
 
-    /// Execution of the algorithm Q-Learning.
-    void execute();
-
     /// Ending condition of an episode.
     bool endCondition();
 private:
@@ -39,7 +36,7 @@ private:
      * @param action Action in the message.
      */
     void sendMessage(Actions::Action action);
-
+    void sendMessage(std::string string);
     /// Max number of episodes of the algorithm-
     int numEpisodes = 0;
     /// Algorithm learning rate.
@@ -66,12 +63,6 @@ private:
     ros::Publisher commandPublisher;
 
     //TODO documentation.
-    bool flag_pilot_ready;
-
-    bool flag_initialize;
-
-    bool flag_terminated_possible;
-
     State sP = State(0, 0);
 
     Actions::Action a;

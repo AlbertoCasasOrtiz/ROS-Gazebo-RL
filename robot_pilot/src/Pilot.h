@@ -121,7 +121,7 @@ private:
     /// True if obstacle in a direction.
     bool obstacleLeft, obstacleFront, obstacleBack, obstacleRight;
 
-    bool sentReady;
+    bool algorithm_initialized;
 };
 
 #endif //SRC_PILOT_H

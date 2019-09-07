@@ -8,11 +8,13 @@
 Pilot::Pilot(int argc, char **argv) {
     // Initializations
     heading = Pilot::Dir::UP;
-    robotSpeed = robotAngularSpeed = 0.2;
+    robotAngularSpeed = 0.3;
+    robotAngularSpeed = 0.6
     posX = posY = turnZ = 0;
-    stepDistance = 0.85;
-    sentReady = true;
+    stepDistance = 0.7;
     flag_once = true;
+
+    algorithm_initialized = false;
 
     // ROS starts here.
     ros::init(argc, argv, "pilot");
@@ -40,25 +42,33 @@ Pilot::Pilot(int argc, char **argv) {
 
 void Pilot::commanderCallback(const std_msgs::String::ConstPtr &msg) {
     ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
-    Pilot::parseAction(msg->data);
-    if(!possibleAction){
-        sendMessage("not possible");
+    if(msg->data == "algorithm_initialized"){
+        algorithm_initialized = true;
     } else {
-        sendMessage("possible");
+
+        if (algorithm_initialized) {
+            Pilot::parseAction(msg->data);
+            if (!possibleAction) {
+                sendMessage("not possible");
+            } else {
+                sendMessage("possible");
+            }
+        }
     }
 }
 
 void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
     // Advertise the commander that we are ready.
-    if(sentReady) {
+    if(!algorithm_initialized) {
         Pilot::sendMessage("init");
-        sentReady = false;
     }
 
     // If there are no commands, stop.
     if(Pilot::commands.empty()) {
-        Pilot::stop();
-        Pilot::sendMessage("next movement");
+        if(algorithm_initialized) {
+            Pilot::stop();
+            Pilot::sendMessage("next movement");
+        }
     } else {
         // Take first element of the queue.
         switch(commands.front()){

@@ -40,7 +40,7 @@ Actions::Action Actions::getAction(int i) {
             return Actions::Action::RIGHT;
         case 3:
             return Actions::Action::DOWN;
-        case 5:
+        case 4:
             return Actions::Action ::STOP;
         default:
             ROS_ERROR("Wrong action number [%i].", i);
@@ -98,6 +98,7 @@ Actions::Action Actions::bestAction(Bot bot) {
 }
 
 State Actions::takeAction(Bot *bot, Actions::Action action) {
+    ROS_INFO("Taken action: [%s]", Actions::toString(action).c_str());
     // Create new state that is the consequence of taking the action.
     State state = State(bot->currentState.p.x, bot->currentState.p.y);
     switch(action){
@@ -112,6 +113,8 @@ State Actions::takeAction(Bot *bot, Actions::Action action) {
             break;
         case Actions::Action::DOWN:
             state.p.y--;
+            break;
+        case Actions::Action::STOP:
             break;
     }
 

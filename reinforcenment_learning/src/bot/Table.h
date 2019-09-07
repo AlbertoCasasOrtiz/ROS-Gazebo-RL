@@ -19,10 +19,10 @@ public:
     void initializeTable(State initial);
 
     /// Update a value in the table.
-    /// \param p Position of the robot.
+    /// \param state Position of the robot.
     /// \param a Action taken by the robot.
     /// \param value Value added to the table cell.
-    void updateValue(State p, int a, float value);
+    void setValue(State state, int a, float value);
 
     /// Get a value in the table.
     /// \param p Position of the robot.
