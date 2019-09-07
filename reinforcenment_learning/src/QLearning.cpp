@@ -11,7 +11,7 @@ QLearning::QLearning(int argc, char **argv) {
     // TODO Initialize values here.
     QLearning::numEpisodes = 100;
     QLearning::alpha = 0.7;
-    QLearning::epsilon = 0.7;
+    QLearning::epsilon = 0.2;
     QLearning::gamma = 0.2;
     QLearning::lambda = 0.2;
 
