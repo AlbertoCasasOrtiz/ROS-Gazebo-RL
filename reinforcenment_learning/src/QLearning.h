@@ -37,8 +37,6 @@ private:
      */
     void sendMessage(Actions::Action action);
     void sendMessage(std::string string);
-    /// Max number of episodes of the algorithm-
-    int numEpisodes = 0;
     /// Algorithm learning rate.
     float alpha = 0.0;
     /// Probability of taking a random action.

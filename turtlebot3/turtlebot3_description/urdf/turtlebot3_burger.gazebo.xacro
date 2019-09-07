@@ -84,9 +84,9 @@
                     <type>gaussian</type>
                     <rate>
                         <mean>0.0</mean>
-                        <stddev>2e-4</stddev>
-                        <bias_mean>0.0000075</bias_mean>
-                        <bias_stddev>0.0000008</bias_stddev>
+                        <stddev>0</stddev>
+                        <bias_mean>0.00000</bias_mean>
+                        <bias_stddev>0.000000</bias_stddev>
                     </rate>
                     <accel>
                         <mean>0.0</mean>

@@ -10,7 +10,6 @@
 
 QLearning::QLearning(int argc, char **argv) {
     // TODO Initialize values here.
-    QLearning::numEpisodes = 100;
     QLearning::alpha = 0.7;
     QLearning::epsilon = 0.2;
     QLearning::gamma = 0.5;
@@ -41,8 +40,8 @@ QLearning::QLearning(int argc, char **argv) {
 
 float QLearning::getReward(State state) {
     if(state == goalState){
-        return 10;
-    }
+        return 100;
+    } else return -0.1;
 }
 
 bool QLearning::endCondition() {
@@ -96,12 +95,10 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
                     float QSA = QLearning::bot.tableQ.getValue(QLearning::bot.currentState, Actions::getPosition(a));
                     float QSpAs = QLearning::bot.tableQ.getValue(sP, Actions::getPosition(aP));
                     delta = reward + QLearning::gamma * QSpAs - QSA;
-                    ROS_INFO("DELTA [%f]", delta);
 
                     // Choose strategy of update traces.
                     float ESA = QLearning::bot.tableE.getValue(QLearning::bot.currentState, Actions::getPosition(a));
                     QLearning::bot.tableE.setValue(QLearning::bot.currentState, Actions::getPosition(a), ESA + 1);
-                    ROS_INFO("E(S, A) After [%f]", QLearning::bot.tableE.getValue(QLearning::bot.currentState, Actions::getPosition(a)));
 
                     // Update tables-
 
