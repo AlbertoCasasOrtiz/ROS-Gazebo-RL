@@ -78,7 +78,8 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
 
                     // Get action from eGreedy.
                     aP = Actions::eGreedy(sP, QLearning::epsilon);
-                    sendMessage(aP);
+                    if(sP != goalState)
+                        sendMessage(aP);
                 }
                 if (msg->data == "possible") {
                     // Observe reward of sP
