@@ -167,7 +167,7 @@
 
     <joint name="ir_front_joint" type="fixed">
         <axis xyz="0 1 0"/>
-        <origin rpy="0 0 0" xyz="0.01 0 0.19"/>
+        <origin rpy="0 0 0" xyz="0.01 0 0.20"/>
         <parent link="base_link"/>
         <child link="base_ir_front"/>
     </joint>
@@ -193,7 +193,7 @@
 
     <joint name="ir_left_joint" type="fixed">
         <axis xyz="0 1 0"/>
-        <origin rpy="0 0 1.57079632679" xyz="0 0.01 0.19"/>
+        <origin rpy="0 0 1.57079632679" xyz="0 0.01 0.20"/>
         <parent link="base_link"/>
         <child link="base_ir_left"/>
     </joint>
@@ -219,7 +219,7 @@
 
     <joint name="ir_right_joint" type="fixed">
         <axis xyz="0 1 0"/>
-        <origin rpy="0 0 -1.57079632679" xyz="0 -0.01 0.19"/>
+        <origin rpy="0 0 -1.57079632679" xyz="0 -0.01 0.20"/>
         <parent link="base_link"/>
         <child link="base_ir_right"/>
     </joint>
@@ -245,7 +245,7 @@
 
     <joint name="ir_back_joint" type="fixed">
         <axis xyz="0 1 0"/>
-        <origin rpy="0 0 3.14159" xyz="-0.01 0 0.19"/>
+        <origin rpy="0 0 3.14159" xyz="-0.01 0 0.20"/>
         <parent link="base_link"/>
         <child link="base_ir_back"/>
     </joint>

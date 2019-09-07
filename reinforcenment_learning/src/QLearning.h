@@ -63,6 +63,9 @@ private:
     /// Indicates if the robot has finished it movement.
     bool flagRobotEnded = false;
 
+    /// Indicates that is the first message sended.
+    bool flagFirstTime = true;
+
     /// Subscribe to pilot to receive robot status.
     ros::Subscriber commanderSubscriber;
 

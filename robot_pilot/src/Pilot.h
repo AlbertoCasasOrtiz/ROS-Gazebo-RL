@@ -9,6 +9,7 @@
 #include <std_msgs/String.h>
 #include <nav_msgs/Odometry.h>
 #include <queue>
+#include <sensor_msgs/Range.h>
 
 class Pilot {
 public:
@@ -36,10 +37,22 @@ private:
     /// Receives and processes commands from a topic.
     /// \param msgs Message containing the command.
     void commanderCallback(const std_msgs::String::ConstPtr &msg);
-
     /// Receives and processes commands from /odom.
     /// \param msg Message containing information.
     void odomCallback(const nav_msgs::Odometry::ConstPtr &msg);
+    /// Callback function for IR front sensor.
+    /// \param msg Message from IR front sensor.
+    void irFrontCallback(const sensor_msgs::Range::ConstPtr& msg);
+    /// Callback function for IR left sensor.
+    /// \param msg Message from IR left sensor.
+    void irLeftCallback(const sensor_msgs::Range::ConstPtr& msg);
+    /// Callback function for IR right sensor.
+    /// \param msg Message from IR right sensor.
+    void irRightCallback(const sensor_msgs::Range::ConstPtr& msg);
+    /// Callback function for IR back sensor.
+    /// \param msg Message from IR back sensor.
+    void irBackCallback(const sensor_msgs::Range::ConstPtr& msg);
+
 
     // Actions
     /// Execute the command FORWARD..
@@ -79,6 +92,14 @@ private:
     ros::Subscriber odomSubscriber;
     /// Publish if a command has been completed.
     ros::Publisher commandCompletedPublisher;
+    /// Subscriber to front ir.
+    ros::Subscriber rangeSubscriberFront;
+    /// Subscriber to right ir.
+    ros::Subscriber rangeSubscriberRight;
+    /// Subscriber to left ir.
+    ros::Subscriber rangeSubscriberLeft;
+    /// Subscriber to back ir.
+    ros::Subscriber rangeSubscriberBack;
 
     //Variables
     /// Queue of upcoming commands.
@@ -101,6 +122,9 @@ private:
 
     /// Send first command.
     bool firstTime;
+
+    /// True if obstacle in a direction.
+    bool obstacleLeft, obstacleFront, obstacleBack, obstacleRight;
 };
 
 #endif //SRC_PILOT_H

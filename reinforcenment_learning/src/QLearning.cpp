@@ -51,7 +51,7 @@ void QLearning::execute() {
         QLearning::bot.tableE.initializeTable(QLearning::bot.currentState);
 
         // Initialize S and A.
-        Actions::Action a = Actions::getAction(0);
+        Actions::Action a = Actions::getAction(-1);
         //ROS_INFO("a [%s]", Actions::toString(a).c_str());
         QLearning::bot.currentState = QLearning::initialState;
 
@@ -62,22 +62,28 @@ void QLearning::execute() {
             // Spin for subscribers.
             ros::spinOnce();
 
+            if(QLearning::flagFirstTime){
+                QLearning::sendMessage(a);
+                QLearning::flagFirstTime = false;
+            }
+
             // Wait until robot_ends notified.
             if (flagRobotEnded) {
 
-                QLearning::sendMessage(a);
+                // Get action from eGreedy.
+                aP = Actions::eGreedy(QLearning::bot, QLearning::epsilon);
+                QLearning::sendMessage(aP);
 
                 if (flagPossibleAction) {
 
                     sP = Actions::takeAction(&(QLearning::bot), a);
+                    ROS_INFO("a [%s]", Actions::toString(a).c_str());
                     //ROS_INFO("sP [(%i, %i)]", sP.p.x, sP.p.y);
 
                     // Observe reward of sP
                     float reward = QLearning::getReward(sP);
                     //ROS_INFO("Reward [%f]", reward);
 
-                    // Get action from eGreedy.
-                    aP = Actions::eGreedy(QLearning::bot, QLearning::epsilon);
                     //ROS_INFO("aP [%s]", Actions::toString(aP).c_str());
                     // Get best action.
                     aS = Actions::bestAction(QLearning::bot);
@@ -117,7 +123,9 @@ void QLearning::execute() {
                     }
 
                     a = aP;
+                    ROS_INFO("State Before: [%i][%i]", QLearning::bot.currentState.p.x, QLearning::bot.currentState.p.y);
                     QLearning::bot.currentState = sP;
+                    ROS_INFO("State After: [%i][%i]", QLearning::bot.currentState.p.x, QLearning::bot.currentState.p.y);
                     flagPossibleAction = false;
                     ROS_INFO("Waiting robot status.");
                 } else {
@@ -138,15 +146,14 @@ float QLearning::getReward(State state) {
 }
 
 bool QLearning::endCondition() {
-    QLearning::sendMessage(Actions::Action::STOP);
     return QLearning::bot.currentState == QLearning::goalState;
 }
 
 void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
-    ROS_INFO("Status received: [%s]", msg->data.c_str());
     if(std::string(msg->data) == "0"){
-        QLearning::flagRobotEnded = false;
-        QLearning:: flagPossibleAction = false;
+        QLearning::flagFirstTime = true;
+        QLearning::flagRobotEnded = true;
+        QLearning::flagPossibleAction = true;
     } else if (std::string(msg->data) == "1"){
         QLearning::flagRobotEnded = true;
         QLearning::flagPossibleAction = false;

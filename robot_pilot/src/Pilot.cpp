@@ -29,17 +29,24 @@ Pilot::Pilot(int argc, char **argv) {
     //Subscribe of pilot for getting actions
     Pilot::commandSubscriber = nh.subscribe("/pilot", 1, &Pilot::commanderCallback, this);
 
+    // Subscribe to range sensors
+    Pilot::rangeSubscriberFront = nh.subscribe("/sensor/ir_front", 1, &Pilot::irFrontCallback, this);
+    Pilot::rangeSubscriberLeft = nh.subscribe("/sensor/ir_left", 1, &Pilot::irLeftCallback, this);
+    Pilot::rangeSubscriberRight = nh.subscribe("/sensor/ir_right", 1, &Pilot::irRightCallback, this);
+    Pilot::rangeSubscriberBack = nh.subscribe("/sensor/ir_back", 1, &Pilot::irBackCallback, this);
+
     // Spin for subscribers.
     ros::spin();
 }
 
 void Pilot::commanderCallback(const std_msgs::String::ConstPtr &msg) {
-    ROS_INFO("Command received: [%s]", msg->data.c_str());
     Pilot::parseAction(msg->data.c_str());
     // If not possible, send message.
     if(!Pilot::possibleAction){
         //Send message
         Pilot::sendMessage("1");
+    } else {
+        ROS_INFO("Command received: [%s]", msg->data.c_str());
     }
 }
 
@@ -47,7 +54,8 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
     if(Pilot::firstTime){
         ROS_INFO("SENT");
         //Send message to receive first action
-        Pilot::sendMessage("2");
+        Pilot::sendMessage("0");
+        Pilot::firstTime = false;
     }
 
     // If there are no commands, stop.
@@ -85,7 +93,6 @@ void Pilot::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
 void Pilot::goForward(const nav_msgs::Odometry::ConstPtr &msg, float speed) {
     if(Pilot::flag_once) {
         // Initialization of command forward.
-        ROS_INFO("FORWARD");
         Pilot::posX = msg->pose.pose.position.x;
         Pilot::posY = msg->pose.pose.position.y;
         Pilot::flag_once = false;
@@ -111,7 +118,6 @@ void Pilot::turnLeft(const nav_msgs::Odometry::ConstPtr &msg, float angularSpeed
 
     if(Pilot::flag_once) {
         //Initialization of command turn left.
-        ROS_INFO("LEFT");
         Pilot::updateHeading(Pilot::Commands::LEFT);
         Pilot::flag_once = false;
 
@@ -136,7 +142,6 @@ void Pilot::turnRight(const nav_msgs::Odometry::ConstPtr &msg, float angularSpee
 
     if (Pilot::flag_once == 1) {
         // Initialization of command turn right.
-        ROS_INFO("RIGHT");
         Pilot::updateHeading(Pilot::Commands::RIGHT);
         Pilot::flag_once = false;
 
@@ -225,90 +230,154 @@ void Pilot::parseAction(const std::string& action) {
     Pilot::possibleAction = false;
     if(action == "UP") {
         if (Pilot::heading == Pilot::Dir::UP) {
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleFront){
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if (Pilot::heading == Pilot::Dir::LEFT) {
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleRight){
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::RIGHT) {
-            Pilot::commands.push(Pilot::Commands::LEFT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleLeft){
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::LEFT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::DOWN) {
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleBack) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
 
     } else if (action == "LEFT"){
         if(Pilot::heading == Pilot::Dir::UP){
-            Pilot::commands.push(Pilot::Commands::LEFT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleLeft) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::LEFT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::LEFT){
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleFront) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::DOWN) {
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleRight) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::RIGHT){
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleBack) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
 
     } else if (action == "RIGHT"){
         if(Pilot::heading == Pilot::Dir::UP){
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleRight) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::RIGHT){
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleFront) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::DOWN){
-            Pilot::commands.push(Pilot::Commands::LEFT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleLeft) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::LEFT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::LEFT){
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleBack) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
 
     } else if (action == "DOWN"){
         if(Pilot::heading == Pilot::Dir::RIGHT){
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleRight) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::LEFT){
-            Pilot::commands.push(Pilot::Commands::LEFT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleLeft) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::LEFT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::DOWN){
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleFront) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
         if(Pilot::heading == Pilot::Dir::UP){
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::RIGHT);
-            Pilot::commands.push(Pilot::Commands::FORWARD);
-            Pilot::possibleAction = true;
+            if(obstacleBack) {
+                Pilot::possibleAction = false;
+            } else {
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::RIGHT);
+                Pilot::commands.push(Pilot::Commands::FORWARD);
+                Pilot::possibleAction = true;
+            }
         }
     }
 }
@@ -321,4 +390,25 @@ void Pilot::sendMessage(const std::string& message){
     ss << message;
     str.data = ss.str();
     Pilot::commandCompletedPublisher.publish(str);
+}
+
+
+void Pilot::irFrontCallback(const sensor_msgs::Range::ConstPtr& msg){
+    // If obstacle at 0.5 m or less, true
+    obstacleFront = msg->range < 0.5;
+}
+
+void Pilot::irLeftCallback(const sensor_msgs::Range::ConstPtr& msg){
+    // If obstacle at 0.5 m or less, true
+    obstacleLeft = msg->range < 0.5;
+}
+
+void Pilot::irRightCallback(const sensor_msgs::Range::ConstPtr& msg){
+    // If obstacle at 0.5 m or less, true
+    obstacleRight = msg->range < 0.5;
+}
+
+void Pilot::irBackCallback(const sensor_msgs::Range::ConstPtr& msg){
+    // If obstacle at 0.5 m or less, true
+    obstacleBack = msg->range < 0.5;
 }
