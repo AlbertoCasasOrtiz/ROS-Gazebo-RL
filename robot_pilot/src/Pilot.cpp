@@ -13,7 +13,7 @@ Pilot::Pilot(int argc, char **argv) {
     stepDistance = 0.85;
     sentReady = true;
     flag_once = true;
-    
+
     // ROS starts here.
     ros::init(argc, argv, "pilot");
 

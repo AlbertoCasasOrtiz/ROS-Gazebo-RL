@@ -74,6 +74,11 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
         if(!endCondition()) {
             if (std::string(msg->data) == "not possible" || std::string(msg->data) == "next movement") {
 
+                // If action not possible (there is an obstacle), put it as not possible in Q table with minimum value.
+                if(std::string(msg->data) == "not possible"){
+                    QLearning::bot.tableQ.updateValue(sP, aP, std::numeric_limits<int>::min());
+                }
+
                 // Take action a.
                 sP = Actions::takeAction(&(QLearning::bot), a);
                 // Observe reward of sP
