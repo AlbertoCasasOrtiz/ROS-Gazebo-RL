@@ -44,8 +44,10 @@ void Pilot::commanderCallback(const std_msgs::String::ConstPtr &msg) {
     ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
     if(msg->data == "algorithm_initialized"){
         algorithm_initialized = true;
-    } else {
-
+    } else if(msg->data == "goal") {
+        Pilot::heading = Dir::UP;
+        sendMessage("possible");
+    } else{
         if (algorithm_initialized) {
             Pilot::parseAction(msg->data);
             if (!possibleAction) {

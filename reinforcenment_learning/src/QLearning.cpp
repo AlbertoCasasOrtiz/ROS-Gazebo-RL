@@ -13,8 +13,8 @@ QLearning::QLearning(int argc, char **argv) {
     QLearning::numEpisodes = 100;
     QLearning::alpha = 0.7;
     QLearning::epsilon = 0.2;
-    QLearning::gamma = 0.2;
-    QLearning::lambda = 0.2;
+    QLearning::gamma = 0.5;
+    QLearning::lambda = 0.5;
 
     QLearning::initialState = State(0, 0);
     QLearning::goalState = State(2, 2);
@@ -42,7 +42,7 @@ QLearning::QLearning(int argc, char **argv) {
 float QLearning::getReward(State state) {
     if(state == goalState){
         return 10;
-    } else return -0.1;
+    }
 }
 
 bool QLearning::endCondition() {
@@ -80,6 +80,8 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
                     aP = Actions::eGreedy(sP, QLearning::epsilon);
                     if(sP != goalState)
                         sendMessage(aP);
+                    else
+                        sendMessage("goal");
                 }
                 if (msg->data == "possible") {
                     // Observe reward of sP
