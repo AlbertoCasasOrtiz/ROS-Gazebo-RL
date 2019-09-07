@@ -65,6 +65,7 @@ private:
     /// Publish commands to pilot
     ros::Publisher commandPublisher;
 
+    //TODO documentation.
     bool flag_pilot_ready;
 
     bool flag_initialize;

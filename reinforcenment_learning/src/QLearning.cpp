@@ -19,6 +19,8 @@ QLearning::QLearning(int argc, char **argv) {
     QLearning::goalState = State(2, 2);
     QLearning::bot = Bot(QLearning::initialState);
 
+    QLearning::newEpisode = true;
+
     flag_pilot_ready = false;
     flag_initialize = true;
     flag_terminated_possible = true;
@@ -51,7 +53,6 @@ float QLearning::getReward(State state) {
 }
 
 bool QLearning::endCondition() {
-    newEpisode = true;
     return QLearning::bot.currentState == QLearning::goalState;
 }
 
@@ -63,6 +64,8 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
         flag_initialize = false;
 
     } if(newEpisode) {
+        //TODO restart simulation.
+
         // Initialize table E.
         QLearning::bot.tableE.initializeTable(QLearning::bot.currentState);
 
@@ -72,24 +75,25 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
         newEpisode = false;
     } else {
         if(!endCondition()) {
-            if (std::string(msg->data) == "not possible" || std::string(msg->data) == "next movement") {
-
+            if (msg->data == "not possible" || msg->data == "next movement") {
                 // If action not possible (there is an obstacle), put it as not possible in Q table with minimum value.
-                if(std::string(msg->data) == "not possible"){
+                if(msg->data == "not possible"){
                     QLearning::bot.tableQ.updateValue(sP, aP, std::numeric_limits<int>::min());
                 }
 
                 // Take action a.
                 sP = Actions::takeAction(&(QLearning::bot), a);
                 // Observe reward of sP
-                float reward = QLearning::getReward(sP);
+                reward = QLearning::getReward(sP);
 
                 // Get action from eGreedy.
                 aP = Actions::eGreedy(sP, QLearning::epsilon);
                 sendMessage(aP);
-            } else if (std::string(msg->data) == "possible") {
+            }
+            if (msg->data == "possible") {
                 // Get best action.
                 aS = Actions::bestAction(QLearning::bot);
+                ROS_INFO("State: [%i][%i]", sP.p.x, sP.p.y);
 
                 // Update delta.
                 float QSpA = QLearning::bot.tableQ.getValue(sP, Actions::getPosition(aS));

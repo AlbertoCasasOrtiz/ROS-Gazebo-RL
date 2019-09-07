@@ -36,6 +36,7 @@ public:
     /// Add state to the table.
     /// \param state A new state.
     void addState(State state);
+
 };
 
 
