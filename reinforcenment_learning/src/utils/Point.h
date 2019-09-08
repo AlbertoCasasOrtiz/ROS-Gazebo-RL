@@ -8,16 +8,18 @@
 
 class Point {
 public:
+    //Class variables.
     /// X of the point.
     int x;
     /// Y of the point.
     int y;
 
-
+    // Helpers.
     /// Get string representation of a point.
     /// \return String representation of a point.
     std::string toString();
 
+    // Constructors and destructors.
     /// Constructor of point.
     /// \param x X of the point.
     /// \param y Y of the point.

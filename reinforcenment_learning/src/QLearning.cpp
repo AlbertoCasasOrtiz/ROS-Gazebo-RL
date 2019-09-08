@@ -56,7 +56,6 @@ bool QLearning::endCondition() {
 void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
    // ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
     if(std::string(msg->data) == "init") {
-        ROS_INFO("GRETTINGS PROFESSOR FALKEN... I MEAN... ALBERTO... :)");
         ROS_INFO("INITIALIZING..");
         // Initialize table Q.;
         QLearning::bot.tableQ.initializeTable(QLearning::bot.currentState);

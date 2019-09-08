@@ -10,28 +10,30 @@
 
 class State {
 public:
+    // Class member variables.
     /// Position of the robot.
     Point p = Point(0, 0);
 
+    // Operators-
     /// Operator of equality of states.
     /// \param s Another state.
     /// \return true if the states are the same, false otherwise.
     bool operator == (State const &s);
-
     /// Operator of inequality of states.
     /// \param s Another state.
     /// \return true if the states are different, false otherwise.
     bool operator != (State const &s);
-
     /// Operator of lessority of states.
     /// \param s Another state.
     /// \return true if the states are less than other, false otherwise.
     bool operator < (State const &s) const;
 
+    // Helpers
     /// Get string representation of a state.
     /// \return String representation of a state.
     std::string toString();
 
+    // Constructors and destructors.
     /// Constructor of State.
     /// \param x Position x of the robot.
     /// \param y Position y of the robot.
