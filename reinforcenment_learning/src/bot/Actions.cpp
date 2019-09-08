@@ -67,18 +67,20 @@ int Actions::getPosition(Actions::Action action) {
     }
 }
 
-Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
+Actions::Action Actions::eGreedy(Bot bot, State state, float epsilon) {
     Action action;
     // Generate random number between 0 and 1.
     float rand = RandomGenerator::getFloat(0, 1);
 
-    if(rand < epsilon){
+    if(rand > epsilon){
         // Return random action.
         int n = RandomGenerator::getInt(0, Actions::size);
         action = Actions::getAction(n);
+        ROS_INFO("RANDOM ACTION: [%s]", Actions::toString(action).c_str());
     } else {
         // Return best action.
-        action = Actions::bestAction(std::move(bot), bot.currentState);
+        action = Actions::bestAction(std::move(bot), state);
+        ROS_INFO("BEST ACTION: [%s]", Actions::toString(action).c_str());
     }
 
     return action;
@@ -86,7 +88,7 @@ Actions::Action Actions::eGreedy(Bot bot, float epsilon) {
 
 Actions::Action Actions::bestAction(Bot bot, State state) {
     Actions::Action bestAction = Actions::Action::UP;
-    float max = std::numeric_limits<int>::min();
+    float max = std::numeric_limits<int>::lowest();
     for(int i = 0; i < Actions::size; i++) {
         float actionValue = bot.tableQ.getValue(state, i);
         if (actionValue > max) {

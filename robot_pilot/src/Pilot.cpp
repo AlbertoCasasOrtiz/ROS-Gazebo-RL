@@ -400,20 +400,20 @@ void Pilot::sendMessage(const std::string& message){
 
 void Pilot::irFrontCallback(const sensor_msgs::Range::ConstPtr& msg){
     // If obstacle at 0.5 m or less, true
-    obstacleFront = msg->range < 0.5;
+    obstacleFront = msg->range < 0.6;
 }
 
 void Pilot::irLeftCallback(const sensor_msgs::Range::ConstPtr& msg){
     // If obstacle at 0.5 m or less, true
-    obstacleLeft = msg->range < 0.5;
+    obstacleLeft = msg->range < 0.6;
 }
 
 void Pilot::irRightCallback(const sensor_msgs::Range::ConstPtr& msg){
     // If obstacle at 0.5 m or less, true
-    obstacleRight = msg->range < 0.5;
+    obstacleRight = msg->range < 0.6;
 }
 
 void Pilot::irBackCallback(const sensor_msgs::Range::ConstPtr& msg){
     // If obstacle at 0.5 m or less, true
-    obstacleBack = msg->range < 0.5;
+    obstacleBack = msg->range < 0.6;
 }

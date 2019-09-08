@@ -35,7 +35,7 @@ public:
     /// \param bot Bot with its current state and tables.
     /// \param epsilon Probability of taking a random action.
     /// \return Selected action by the method.
-    static Actions::Action eGreedy(Bot bot, float epsilon);
+    static Actions::Action eGreedy(Bot bot, State state, float epsilon);
 
     /// Get the best action that the bot can take.
     /// \param bot Bot with its current state and tables.

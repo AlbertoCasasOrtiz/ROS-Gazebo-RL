@@ -36,15 +36,35 @@ private:
      * @param action Action in the message.
      */
     void sendMessage(Actions::Action action);
-    void sendMessage(std::string string);
+
+    /**
+     * Send a message to the pilot.
+     * @param string Message in a string.
+     */
+    void sendMessage(const std::string& string);
+
+    /// Calculate value of epsilon with a temperature function.
+    /// \return Value of epsilon.
+    float epsilonValue();
+
+    /// Calculate value of alpha with a temperature function.
+    /// \return Value of alpha.
+    float alphaValue();
+
     /// Algorithm learning rate.
-    float alpha = 0.0;
+    float alphaini;
+    float tAlpha;
     /// Probability of taking a random action.
-    float epsilon = 0.0;
+    float epsilonini;
+    float tEpsilon;
     /// Algorithm propagation rate.
-    float gamma = 0.0;
-    // Influence of elegibility traces.
-    float lambda = 0.0;
+    float gamma;
+    /// Influence of elegibility traces.
+    float lambda;
+    /// Value calculated by algorithm to update tables.
+    float delta;
+
+    int episode;
 
     /// Initial state of the robot.
     State initialState = State(0, 0);;
@@ -66,7 +86,6 @@ private:
     Actions::Action a;
     Actions::Action aP;
     Actions::Action aS;
-    float delta = 0.0;
     bool newEpisode;
     float reward;
 };

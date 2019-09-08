@@ -7,17 +7,22 @@
 #include <ros/ros.h>
 #include <thread>
 #include "std_srvs/Empty.h"
+#include <math.h>
 
 QLearning::QLearning(int argc, char **argv) {
     // TODO Initialize values here.
-    QLearning::alpha = 0.7;
-    QLearning::epsilon = 0.2;
+    QLearning::alphaini = 0.9;
+    QLearning::tAlpha = 1.5;
+    QLearning::epsilonini = 0.7;
+    QLearning::tEpsilon = 1.5;
     QLearning::gamma = 0.5;
     QLearning::lambda = 0.5;
 
     QLearning::initialState = State(0, 0);
     QLearning::goalState = State(2, 2);
     QLearning::bot = Bot(QLearning::initialState);
+
+    QLearning::episode = 0;
 
     QLearning::newEpisode = false;
 
@@ -41,7 +46,7 @@ QLearning::QLearning(int argc, char **argv) {
 float QLearning::getReward(State state) {
     if(state == goalState){
         return 100;
-    } else return -0.1;
+    } else return -0.01;
 }
 
 bool QLearning::endCondition() {
@@ -49,8 +54,9 @@ bool QLearning::endCondition() {
 }
 
 void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
-    ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
+   // ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
     if(std::string(msg->data) == "init") {
+        ROS_INFO("GRETTINGS ALBERTO..");
         ROS_INFO("INITIALIZING..");
         // Initialize table Q.;
         QLearning::bot.tableQ.initializeTable(QLearning::bot.currentState);
@@ -67,6 +73,10 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
             QLearning::bot.currentState = QLearning::initialState;
             a = Actions::getAction(4);
             newEpisode = false;
+
+            ROS_INFO("Epsilon [%f]:", epsilonValue());
+            ROS_INFO("Alpha [%f]:", alphaValue());
+
         } else {
             if (!endCondition()) {
                 if (msg->data == "not possible" || msg->data == "next movement") {
@@ -76,20 +86,24 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
                     sP = Actions::takeAction(&(QLearning::bot), a);
 
                     // Get action from eGreedy.
-                    aP = Actions::eGreedy(sP, QLearning::epsilon);
+                    aP = Actions::eGreedy(bot, sP, QLearning::epsilonValue());
+
                     if(sP != goalState)
                         sendMessage(aP);
-                    else
+                    else {
                         sendMessage("goal");
+                        ROS_INFO("MISSION ACCOMPLISHED.");
+                    }
                 }
                 if (msg->data == "possible") {
                     // Observe reward of sP
                     reward = QLearning::getReward(sP);
-                    ROS_INFO("REWARD [%f]", reward);
+                    //ROS_INFO("REWARD [%f]", reward);
 
                     // Get best action.
                     aS = Actions::bestAction(bot, sP);
-                    ROS_INFO("State: [%i][%i]", sP.p.x, sP.p.y);
+                    ROS_INFO("CURRENT STATE: [%i][%i]", sP.p.x, sP.p.y);
+                    ROS_INFO("NEXT ACTION: [%s]", Actions::toString(aP).c_str());
 
                     // Update delta.
                     float QSA = QLearning::bot.tableQ.getValue(QLearning::bot.currentState, Actions::getPosition(a));
@@ -107,9 +121,9 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
                         for (int j = 0; j < Actions::size; j++) {
                             // Update table Q.
                             float Q = QLearning::bot.tableQ.getValue(aux, j);
-                            if(reward == 10) ROS_INFO("REWARD Q: [%f]", Q);
-                            float newQ = QLearning::alpha * delta * QLearning::bot.tableE.getValue(aux, j);
-                            if(reward == 10) ROS_INFO("REWARD newQ: [%f]", newQ);
+                            //if(reward == 10) ROS_INFO("REWARD Q: [%f]", Q);
+                            float newQ = QLearning::alphaValue() * delta * QLearning::bot.tableE.getValue(aux, j);
+                            //if(reward == 10) ROS_INFO("REWARD newQ: [%f]", newQ);
                             QLearning::bot.tableQ.setValue(aux, j, Q + newQ);
                             //Update table E.
                             if (aS == aP) {
@@ -131,7 +145,7 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
                     QLearning::bot.tableQ.printTable("tableQ.txt");
                 }
             } else {
-
+                QLearning::episode++;
                 QLearning::sendMessage(Actions::Action::STOP);
                 QLearning::bot.tableQ.printTable("tableQ.txt");
                 QLearning::bot.tableE.printTable("tableE.txt");
@@ -146,7 +160,7 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
 }
 
 void QLearning::sendMessage(Actions::Action action) {
-    ROS_INFO("SENT [%s]", Actions::toString(action).c_str());
+    //ROS_INFO("SENT [%s]", Actions::toString(action).c_str());
     //Send message
     std_msgs::String str;
     std::stringstream ss;
@@ -156,8 +170,8 @@ void QLearning::sendMessage(Actions::Action action) {
     commandPublisher.publish(str);
 }
 
-void QLearning::sendMessage(std::string string) {
-    ROS_INFO("SENT [%s]", string.c_str());
+void QLearning::sendMessage(const std::string& string) {
+    //ROS_INFO("SENT [%s]", string.c_str());
     //Send message
     std_msgs::String str;
     std::stringstream ss;
@@ -165,4 +179,14 @@ void QLearning::sendMessage(std::string string) {
     ss << string;
     str.data = ss.str();
     commandPublisher.publish(str);
+}
+
+float QLearning::epsilonValue() {
+    float part = exp(-QLearning::tEpsilon/(QLearning::episode+1));
+    return QLearning::epsilonini+(1-QLearning::epsilonini)*part;
+}
+
+float QLearning::alphaValue() {
+    float part = exp(-QLearning::tAlpha/(QLearning::episode+1));
+    return QLearning::alphaini-QLearning::alphaini*part;
 }
