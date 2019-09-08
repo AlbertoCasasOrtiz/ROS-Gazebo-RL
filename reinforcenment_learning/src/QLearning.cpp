@@ -13,13 +13,13 @@ QLearning::QLearning(int argc, char **argv) {
     // TODO Initialize values here.
     QLearning::alphaini = 0.9;
     QLearning::tAlpha = 1.5;
-    QLearning::epsilonini = 0.7;
+    QLearning::epsilonini = 0.4;
     QLearning::tEpsilon = 1.5;
     QLearning::gamma = 0.5;
     QLearning::lambda = 0.5;
 
     QLearning::initialState = State(0, 0);
-    QLearning::goalState = State(2, 2);
+    QLearning::goalState = State(-5, 5);
     QLearning::bot = Bot(QLearning::initialState);
 
     QLearning::episode = 0;
