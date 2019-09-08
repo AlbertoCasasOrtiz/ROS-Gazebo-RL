@@ -56,7 +56,7 @@ bool QLearning::endCondition() {
 void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
    // ROS_INFO("RECEIVED: [%s]", msg->data.c_str());
     if(std::string(msg->data) == "init") {
-        ROS_INFO("GRETTINGS ALBERTO..");
+        ROS_INFO("GRETTINGS PROFESSOR FALKEN... I MEAN... ALBERTO... :)");
         ROS_INFO("INITIALIZING..");
         // Initialize table Q.;
         QLearning::bot.tableQ.initializeTable(QLearning::bot.currentState);
@@ -74,8 +74,8 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
             a = Actions::getAction(4);
             newEpisode = false;
 
-            ROS_INFO("Epsilon [%f]:", epsilonValue());
-            ROS_INFO("Alpha [%f]:", alphaValue());
+            //ROS_INFO("Epsilon [%f]:", epsilonValue());
+            //ROS_INFO("Alpha [%f]:", alphaValue());
 
         } else {
             if (!endCondition()) {
@@ -93,6 +93,7 @@ void QLearning::commanderCallback(const std_msgs::String::ConstPtr &msg) {
                     else {
                         sendMessage("goal");
                         ROS_INFO("MISSION ACCOMPLISHED.");
+                        ROS_INFO(" ");
                     }
                 }
                 if (msg->data == "possible") {

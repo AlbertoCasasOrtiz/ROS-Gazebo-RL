@@ -76,11 +76,11 @@ Actions::Action Actions::eGreedy(Bot bot, State state, float epsilon) {
         // Return random action.
         int n = RandomGenerator::getInt(0, Actions::size);
         action = Actions::getAction(n);
-        ROS_INFO("RANDOM ACTION: [%s]", Actions::toString(action).c_str());
+        //ROS_INFO("RANDOM ACTION: [%s]", Actions::toString(action).c_str());
     } else {
         // Return best action.
         action = Actions::bestAction(std::move(bot), state);
-        ROS_INFO("BEST ACTION: [%s]", Actions::toString(action).c_str());
+        //ROS_INFO("BEST ACTION: [%s]", Actions::toString(action).c_str());
     }
 
     return action;
